@@ -1,0 +1,163 @@
+<div class="page-container">
+
+  <!-- Stats Row -->
+  @if (stats) {
+    <div class="stats-row">
+      <div class="stat-card total">
+        <div class="stat-icon-wrap"><mat-icon>list_alt</mat-icon></div>
+        <div>
+          <div class="stat-value">{{ stats.total }}</div>
+          <div class="stat-label">Total Incidents</div>
+        </div>
+      </div>
+      <div class="stat-card active">
+        <div class="stat-icon-wrap"><mat-icon>hourglass_empty</mat-icon></div>
+        <div>
+          <div class="stat-value">{{ activeCount }}</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+      </div>
+      <div class="stat-card critical">
+        <div class="stat-icon-wrap"><mat-icon>warning</mat-icon></div>
+        <div>
+          <div class="stat-value">{{ criticalCount }}</div>
+          <div class="stat-label">Critical (P0/P1)</div>
+        </div>
+      </div>
+      <div class="stat-card resolved">
+        <div class="stat-icon-wrap"><mat-icon>check_circle</mat-icon></div>
+        <div>
+          <div class="stat-value">{{ stats.incidents_by_status['resolved'] || 0 }}</div>
+          <div class="stat-label">Resolved</div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Header -->
+  <div class="list-header">
+    <h2>Incident Dashboard</h2>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Filter by status</mat-label>
+        <mat-select [(ngModel)]="statusFilter" (ngModelChange)="applyFilter()">
+          <mat-option value="">All statuses</mat-option>
+          <mat-option value="received">Received</mat-option>
+          <mat-option value="triaging">Triaging</mat-option>
+          <mat-option value="triaged">Triaged</mat-option>
+          <mat-option value="ticket_created">Ticket Created</mat-option>
+          <mat-option value="notified">Notified</mat-option>
+          <mat-option value="resolved">Resolved</mat-option>
+          <mat-option value="failed">Failed</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <a mat-raised-button color="primary" routerLink="/report">New Incident</a>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (loading) {
+    <div class="loading-spinner">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (incidents.length === 0) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon class="empty-icon">inbox</mat-icon>
+        <h3>No incidents found</h3>
+        <p>Incidents will appear here as they are submitted.</p>
+        <a mat-raised-button color="primary" routerLink="/report">Report First Incident</a>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card class="table-card">
+      <table mat-table [dataSource]="incidents" class="incident-table">
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-badge {{ getStatusClass(row.status) }}">
+              @if (isActiveStatus(row.status)) {
+                <span class="pulse-dot"></span>
+              }
+              {{ row.status.replace('_', ' ') | titlecase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="severity">
+          <th mat-header-cell *matHeaderCellDef>Severity</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="severity-badge {{ getSeverityClass(row.severity_final || row.severity_hint) }}">
+              {{ row.severity_final || row.severity_hint || '—' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Title</th>
+          <td mat-cell *matCellDef="let row">
+            <a [routerLink]="['/incidents', row.id]" class="incident-link">
+              {{ row.title | slice:0:70 }}{{ row.title.length > 70 ? '...' : '' }}
+            </a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="team">
+          <th mat-header-cell *matHeaderCellDef>Team</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.assigned_team) {
+              <span class="team-badge">{{ row.assigned_team | titlecase }}</span>
+            } @else {
+              <span class="dash">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="reporter">
+          <th mat-header-cell *matHeaderCellDef>Reporter</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="reporter-name">{{ row.reporter_name }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="ticket">
+          <th mat-header-cell *matHeaderCellDef>Ticket</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.linear_ticket_url && row.linear_ticket_id) {
+              <a [href]="row.linear_ticket_url" target="_blank" class="ticket-link">
+                <mat-icon class="ticket-icon">open_in_new</mat-icon>
+                {{ row.linear_ticket_id }}
+              </a>
+            } @else {
+              <span class="dash">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="created">
+          <th mat-header-cell *matHeaderCellDef>Created</th>
+          <td mat-cell *matCellDef="let row">
+            <span [matTooltip]="(row.created_at | date:'medium') ?? ''">
+              {{ formatDate(row.created_at) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <a mat-icon-button [routerLink]="['/incidents', row.id]" matTooltip="View details">
+              <mat-icon>chevron_right</mat-icon>
+            </a>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            [class.active-row]="isActiveStatus(row.status)"
+            [class.failed-row]="row.status === 'failed'"></tr>
+      </table>
+    </mat-card>
+  }
+</div>

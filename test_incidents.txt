@@ -1,0 +1,134 @@
+================================================================================
+GaviBot - TEST INCIDENTS (Simple → Complex)
+================================================================================
+
+------------------------------------------------------------------------
+TEST 1 — Simple / P3 (Frontend, low impact)
+------------------------------------------------------------------------
+TITLE:
+Product images not loading on mobile browsers
+
+DESCRIPTION:
+Several users reported that product images are not displaying on mobile
+devices when using Safari on iOS 17. The images show a broken icon
+placeholder instead of the actual product photo. Desktop browsers work
+fine. The issue started appearing today after the latest deployment.
+No console errors have been reported but the images seem to return a
+404 when accessed from mobile user agents.
+
+EXPECTED RESULT: P3, team: frontend
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+TEST 2 — Moderate / P2 (Backend, order processing)
+------------------------------------------------------------------------
+TITLE:
+Order confirmation emails not being sent after checkout
+
+DESCRIPTION:
+Since this morning, customers are completing checkout successfully and
+seeing the confirmation page, but they are not receiving the order
+confirmation email. The orders are being created correctly in the
+database and payments are being captured. Our support team has received
+about 30 complaints in the last 2 hours. The issue seems to affect all
+order types. We checked the background job queue and noticed the
+ActionMailer jobs are piling up with a "SMTP connection timeout" error.
+The SMTP provider status page shows no incidents on their end.
+
+EXPECTED RESULT: P2, team: backend
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+TEST 3 — High / P1 (Payments, revenue impact)
+------------------------------------------------------------------------
+TITLE:
+Checkout failing with 500 error for credit card payments
+
+DESCRIPTION:
+We are seeing a spike in 500 errors on POST /api/v1/checkouts/complete
+for all credit card payment attempts. PayPal payments are working fine.
+Error rate went from 0.1% to 78% in the last 20 minutes. Stripe
+dashboard shows no failed charges on their side which means the
+requests are not even reaching them. The error log shows:
+
+  NoMethodError: undefined method 'authorize' for nil:NilClass
+  app/models/spree/payment/processing.rb:47:in 'process!'
+  app/controllers/spree/api/v2/storefront/checkouts_controller.rb:89
+
+This started right after we deployed a hotfix for a coupon code bug
+at 14:32 UTC. Estimated revenue loss is $3,000 per hour.
+
+EXPECTED RESULT: P1, team: payments
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+TEST 4 — Critical / P0 (Infrastructure, full outage)
+------------------------------------------------------------------------
+TITLE:
+Complete site outage - all API requests returning 503
+
+DESCRIPTION:
+The entire Solidus storefront is down. All endpoints are returning HTTP
+503 Service Unavailable. The CDN health checks are failing and the load
+balancer is showing all backend instances as unhealthy. Started at
+09:14 UTC, affecting 100% of users globally.
+
+Kubernetes pod logs show:
+  FATAL: connection to database failed: FATAL: remaining connection
+  slots are reserved for non-replication superuser connections
+  (pg_hcon.conf line 87)
+
+  ActiveRecord::ConnectionNotEstablished: could not connect to server:
+  Connection refused. Is the server running on host "db-primary" and
+  accepting TCP/IP connections on port 5432?
+
+PostgreSQL primary node CPU is at 100%, active connections: 998/1000.
+The connection pool on all app servers exhausted. We believe a slow
+query from a new report feature released yesterday is causing a
+connection leak. Redis cache is also unavailable because the app
+cannot connect to it. All background jobs have stopped processing.
+We have approximately 4,200 active user sessions interrupted.
+
+EXPECTED RESULT: P0, team: infrastructure (or database)
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+TEST 5 — Complex / P1 (Multi-system, ambiguous root cause)
+------------------------------------------------------------------------
+TITLE:
+Intermittent checkout failures and inventory discrepancies during flash sale
+
+DESCRIPTION:
+During today's flash sale event (started 11:00 UTC, 15,000 concurrent
+users), we are experiencing two interrelated issues that may share the
+same root cause:
+
+1. CHECKOUT FAILURES (~12% error rate):
+   POST /api/v2/storefront/orders/:number/complete returns 422 with
+   "Spree::Order::InsufficientStock" for items that appear in stock in
+   the UI. The error is intermittent — the same item succeeds on retry
+   60% of the time.
+
+2. INVENTORY DISCREPANCIES:
+   Spree::StockItem counts in the DB are going negative for high-demand
+   variants. Example: variant_id=8821 showing stock_count=-14.
+   The on_hand calculation in Spree::Stock::Quantifier is returning
+   stale values despite cache invalidation calls.
+
+Relevant logs:
+  WARN: Optimistic locking conflict on Spree::StockItem id=4421
+  lock_version expected 23 got 19 — retrying (attempt 3/3)
+  ERROR: Retry limit exceeded for StockItem update, raising to caller
+
+  Sidekiq job StockSyncWorker showing 847 retries in dead queue.
+  Redis latency spiked to 340ms avg (normal: 4ms).
+
+We suspect a race condition in the inventory reservation system under
+high concurrency, possibly combined with a Redis performance issue
+causing cache stampede on the stock count keys. The StockSyncWorker
+jobs failing silently may have made the problem worse over time.
+There is also a new "reserve stock on cart add" feature that shipped
+Monday — it may be interacting badly with the checkout stock check.
+
+EXPECTED RESULT: P1, team: backend (or database), complex multi-cause
+========================================================================

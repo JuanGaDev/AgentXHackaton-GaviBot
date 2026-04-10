@@ -1,0 +1,282 @@
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+
+  .header-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7c6af7, #5b21b6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 24px rgba(124,106,247,0.4);
+    flex-shrink: 0;
+
+    .header-icon {
+      font-size: 28px;
+      height: 28px;
+      width: 28px;
+      color: white !important;
+    }
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  p {
+    color: var(--text-sec);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+// ─── Grid ─────────────────────────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Cards ────────────────────────────────────────────────────────────────────
+.form-card {
+  margin-bottom: 16px;
+  border-radius: var(--radius-lg) !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+
+  mat-card-header { margin-bottom: 4px; }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 8px;
+  color: white !important;
+}
+
+// ─── Drop Zone ────────────────────────────────────────────────────────────────
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--bg-elevated);
+
+  &:hover, &.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+
+    .drop-icon { color: var(--accent) !important; }
+    .drop-text { color: var(--text); }
+  }
+
+  .drop-icon {
+    font-size: 44px;
+    height: 44px;
+    width: 44px;
+    color: var(--text-muted) !important;
+    margin-bottom: 12px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: color var(--transition);
+  }
+
+  .drop-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-sec);
+    margin-bottom: 4px;
+    transition: color var(--transition);
+  }
+
+  .drop-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'Roboto Mono', monospace;
+    letter-spacing: 0.3px;
+  }
+}
+
+// ─── File List ────────────────────────────────────────────────────────────────
+.file-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+
+  .file-icon { color: var(--accent) !important; }
+
+  .file-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    .file-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-size {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'Roboto Mono', monospace;
+    }
+  }
+}
+
+// ─── Sidebar Info Card ────────────────────────────────────────────────────────
+.info-card {
+  border-radius: var(--radius-lg) !important;
+  background: linear-gradient(135deg, rgba(124,106,247,0.08), rgba(91,33,182,0.06)) !important;
+  border: 1px solid rgba(124,106,247,0.2) !important;
+  margin-bottom: 16px;
+
+  h3 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+}
+
+.pipeline-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+
+  &:last-child { border-bottom: none; }
+
+  .step-icon {
+    color: var(--accent) !important;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  strong {
+    font-size: 12px;
+    display: block;
+    margin-bottom: 2px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  p {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// ─── Submit Button ────────────────────────────────────────────────────────────
+.submit-btn {
+  width: 100%;
+  height: 46px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius) !important;
+  background: linear-gradient(135deg, #7c6af7, #5b21b6) !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(124,106,247,0.4) !important;
+  transition: box-shadow var(--transition), transform var(--transition) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:not([disabled]):hover {
+    box-shadow: 0 0 32px rgba(124,106,247,0.6) !important;
+    transform: translateY(-1px);
+  }
+
+  &[disabled] {
+    opacity: 0.5 !important;
+    cursor: not-allowed;
+  }
+
+  mat-icon { font-size: 18px; height: 18px; width: 18px; }
+}
+
+.progress-bar {
+  margin-top: 12px;
+  border-radius: 4px;
+}
+
+// ─── Severity Option in Select ────────────────────────────────────────────────
+.severity-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  .severity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .severity-label {
+    font-weight: 700;
+    min-width: 36px;
+    font-size: 12px;
+    font-family: 'Roboto Mono', monospace;
+  }
+
+  .severity-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

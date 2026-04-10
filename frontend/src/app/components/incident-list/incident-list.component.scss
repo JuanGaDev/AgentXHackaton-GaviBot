@@ -1,0 +1,277 @@
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+
+// ─── Stats Row ────────────────────────────────────────────────────────────────
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .stat-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 22px;
+      height: 22px;
+      width: 22px;
+    }
+  }
+
+  .stat-value {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    font-family: 'Roboto Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  &.total {
+    &::before { background: var(--accent); }
+    .stat-icon-wrap { background: var(--accent-dim); }
+    mat-icon { color: var(--accent) !important; }
+    .stat-value { color: var(--accent); }
+  }
+  &.active {
+    &::before { background: var(--orange); }
+    .stat-icon-wrap { background: var(--orange-dim); }
+    mat-icon { color: var(--orange) !important; }
+    .stat-value { color: var(--orange); }
+  }
+  &.critical {
+    &::before { background: var(--red); }
+    .stat-icon-wrap { background: var(--red-dim); }
+    mat-icon { color: var(--red) !important; }
+    .stat-value { color: var(--red); }
+  }
+  &.resolved {
+    &::before { background: var(--green); }
+    .stat-icon-wrap { background: var(--green-dim); }
+    mat-icon { color: var(--green) !important; }
+    .stat-value { color: var(--green); }
+  }
+}
+
+// ─── List Header ──────────────────────────────────────────────────────────────
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-field {
+  width: 200px;
+}
+
+// ─── Table ────────────────────────────────────────────────────────────────────
+.table-card {
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden;
+  padding: 0 !important;
+  border: 1px solid var(--border) !important;
+
+  // Remove mat-card default padding
+  .mat-mdc-card-content { padding: 0 !important; }
+}
+
+.incident-table {
+  width: 100%;
+
+  th.mat-mdc-header-cell {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted) !important;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    background: var(--bg-elevated) !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  td.mat-mdc-cell {
+    font-size: 13px;
+    padding: 14px 16px;
+    vertical-align: middle;
+  }
+}
+
+.incident-link {
+  color: var(--text) !important;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.4;
+
+  &:hover { color: var(--accent) !important; }
+}
+
+.ticket-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent) !important;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  background: var(--accent-dim);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(124,106,247,0.25);
+
+  .ticket-icon {
+    font-size: 12px;
+    height: 12px;
+    width: 12px;
+  }
+
+  &:hover { background: rgba(124,106,247,0.25); }
+}
+
+.reporter-name {
+  font-size: 13px;
+  color: var(--text-sec);
+}
+
+.dash { color: var(--border); font-size: 16px; }
+
+.active-row {
+  background: rgba(251, 146, 60, 0.04) !important;
+  border-left: 2px solid var(--orange) !important;
+}
+
+.failed-row {
+  background: rgba(248, 113, 113, 0.04) !important;
+  border-left: 2px solid var(--red) !important;
+}
+
+// ─── Pulse Dot ────────────────────────────────────────────────────────────────
+.pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 5px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+// ─── Loading / Empty ──────────────────────────────────────────────────────────
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px;
+}
+
+.empty-state {
+  border-radius: var(--radius-lg) !important;
+  text-align: center;
+  padding: 64px 48px !important;
+  border: 2px dashed var(--border) !important;
+  background: transparent !important;
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    height: 64px;
+    width: 64px;
+    color: var(--border) !important;
+  }
+
+  h3 {
+    font-size: 18px;
+    color: var(--text-sec);
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+}

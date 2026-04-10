@@ -1,0 +1,536 @@
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+
+.back-btn {
+  margin-bottom: 20px;
+  color: var(--text-sec) !important;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px !important;
+  border-radius: var(--radius-sm) !important;
+  transition: color var(--transition), background var(--transition);
+
+  &:hover {
+    color: var(--text) !important;
+    background: var(--bg-elevated) !important;
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 100px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+// ─── Grid ─────────────────────────────────────────────────────────────────────
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Section cards ────────────────────────────────────────────────────────────
+.section-card {
+  border-radius: var(--radius-lg) !important;
+  margin-bottom: 16px;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.card-icon {
+  color: var(--accent) !important;
+  margin-right: 8px;
+  vertical-align: middle;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+// ─── Header Card ──────────────────────────────────────────────────────────────
+.header-card {
+  border-radius: var(--radius-lg) !important;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #0d1f38 0%, #111a2c 100%) !important;
+  border: 1px solid var(--border) !important;
+  border-top: 3px solid var(--accent) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+
+  .incident-title-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .incident-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .incident-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+
+    span, a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-sec);
+    }
+  }
+
+  .meta-icon {
+    font-size: 15px;
+    height: 15px;
+    width: 15px;
+    color: var(--text-muted) !important;
+  }
+
+  .ticket-link {
+    color: var(--accent) !important;
+    text-decoration: none;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    background: var(--accent-dim);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(124,106,247,0.25);
+    width: fit-content;
+
+    &:hover { background: rgba(124,106,247,0.25); }
+  }
+
+  .ext-icon {
+    font-size: 12px;
+    height: 12px;
+    width: 12px;
+  }
+}
+
+// ─── Pipeline Card ────────────────────────────────────────────────────────────
+.pipeline-card {
+  border-radius: var(--radius-lg) !important;
+  margin-bottom: 16px;
+}
+
+.pipeline-track {
+  display: flex;
+  align-items: center;
+  padding: 8px 4px;
+  overflow-x: auto;
+  gap: 0;
+}
+
+.pipeline-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 90px;
+
+  .node-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+
+    mat-icon {
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+  }
+
+  .node-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  &.done {
+    .node-circle {
+      background: var(--green-dim);
+      color: var(--green);
+      border-color: rgba(52, 211, 153, 0.4);
+    }
+    .node-label { color: var(--green); }
+  }
+
+  &.active {
+    .node-circle {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: var(--accent);
+      box-shadow: var(--accent-glow);
+      animation: nodeGlow 2s infinite;
+    }
+    .node-label { color: var(--accent); font-weight: 700; }
+  }
+
+  &.failed .node-circle {
+    background: var(--red-dim);
+    color: var(--red);
+    border-color: rgba(248, 113, 113, 0.4);
+  }
+}
+
+@keyframes nodeGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(124,106,247,0.3); }
+  50%       { box-shadow: 0 0 24px rgba(124,106,247,0.6); }
+}
+
+.pipeline-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  min-width: 16px;
+  margin-bottom: 28px;
+  transition: background 0.5s ease;
+
+  &.done { background: var(--green); box-shadow: 0 0 6px rgba(52,211,153,0.3); }
+}
+
+// ─── Demo Resolve Card ────────────────────────────────────────────────────────
+.demo-resolve-card {
+  border-radius: var(--radius-lg) !important;
+  border: 1px dashed rgba(124,106,247,0.4) !important;
+  background: rgba(124,106,247,0.05) !important;
+
+  .demo-resolve-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .demo-resolve-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    .demo-icon {
+      color: var(--accent) !important;
+      font-size: 26px;
+      margin-top: 2px;
+    }
+
+    strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  }
+}
+
+// ─── Email Notifications Card ─────────────────────────────────────────────────
+.notif-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+
+  &:last-child { margin-bottom: 0; }
+
+  mat-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+}
+
+.notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-title {
+  font-size: 12px;
+  color: var(--text-sec);
+  margin-bottom: 3px;
+
+  strong { color: var(--text); }
+}
+
+.notif-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.notif-subject {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.notif-body {
+  margin: 0;
+  padding: 10px 14px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--text-sec);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+// ─── Description ──────────────────────────────────────────────────────────────
+.description-text {
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-sec);
+}
+
+// ─── Triage Card ──────────────────────────────────────────────────────────────
+.triage-card {
+  border-left: 3px solid var(--accent) !important;
+  background: linear-gradient(135deg, rgba(124,106,247,0.04), var(--bg-card)) !important;
+}
+
+.triage-summary {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.triage-section {
+  margin-top: 18px;
+
+  h4 {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 12px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--text-sec);
+    line-height: 1.7;
+  }
+}
+
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.component-chip {
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  border: 1px solid rgba(124,106,247,0.25);
+  letter-spacing: 0.3px;
+}
+
+.actions-list {
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    font-size: 13px;
+    color: var(--text-sec);
+    line-height: 1.5;
+    padding: 8px 12px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    &::before {
+      content: '→';
+      color: var(--accent);
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+  }
+}
+
+// ─── Sidebar Audit Card ───────────────────────────────────────────────────────
+.audit-card {
+  border-radius: var(--radius-lg) !important;
+  position: sticky;
+  top: 78px;
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .mat-mdc-card-content {
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(100vh - 180px);
+  }
+}
+
+.no-logs {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 32px 16px;
+  font-size: 13px;
+}
+
+.audit-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.audit-entry {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+
+  &:last-child { border-bottom: none; }
+
+  .audit-icon {
+    mat-icon {
+      font-size: 16px;
+      height: 16px;
+      width: 16px;
+    }
+  }
+
+  &.success .audit-icon mat-icon { color: var(--green) !important; }
+  &.failure .audit-icon mat-icon { color: var(--red) !important; }
+
+  .audit-content { flex: 1; }
+
+  .audit-stage {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+  }
+
+  .audit-message {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 2px 0;
+    line-height: 1.4;
+  }
+
+  .audit-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'Roboto Mono', monospace;
+  }
+}
+
+// ─── Pulse Dot ────────────────────────────────────────────────────────────────
+.pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 5px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
+}
+
+.not-found {
+  border-radius: var(--radius-lg) !important;
+  text-align: center;
+  padding: 64px !important;
+  border: 2px dashed var(--border) !important;
+  background: transparent !important;
+
+  mat-icon {
+    font-size: 56px;
+    height: 56px;
+    width: 56px;
+    color: var(--border) !important;
+    margin-bottom: 16px;
+  }
+
+  h3 { color: var(--text-sec); font-size: 18px; }
+}

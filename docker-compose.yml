@@ -1,0 +1,94 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sre_agent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-sre_agent}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sre_agent}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sre_network
+
+  chromadb:
+    image: chromadb/chroma:0.5.23
+    environment:
+      - CHROMA_SERVER_AUTH_PROVIDER=
+      - ANONYMIZED_TELEMETRY=false
+    volumes:
+      - chroma_data:/chroma/chroma
+    networks:
+      - sre_network
+
+  langfuse:
+    image: langfuse/langfuse:2
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sre_agent}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-sre_agent}
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-changeme-nextauth-secret}
+      SALT: ${LANGFUSE_SALT:-changeme-salt}
+      NEXTAUTH_URL: http://localhost:3000
+      LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "false"
+    networks:
+      - sre_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    env_file:
+      - path: .env.example
+        required: true
+    environment:
+      - POSTGRES_USER=sre_agent
+      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_DB=sre_agent
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - LANGFUSE_HOST=http://langfuse:3000
+      - SOLIDUS_REPO_URL=https://github.com/solidusio/solidus
+      - UPLOAD_DIR=/app/uploads
+    volumes:
+      - uploads_data:/app/uploads
+      - solidus_data:/app/solidus_repo
+    networks:
+      - sre_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - sre_network
+
+volumes:
+  postgres_data:
+  chroma_data:
+  uploads_data:
+  solidus_data:
+
+networks:
+  sre_network:
+    driver: bridge

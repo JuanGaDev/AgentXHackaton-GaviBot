@@ -1,0 +1,235 @@
+<div class="page-container">
+  <!-- Back button -->
+  <a mat-button routerLink="/dashboard" class="back-btn">← Back to Dashboard</a>
+
+  @if (loading) {
+    <div class="loading-spinner">
+      <mat-spinner diameter="56"></mat-spinner>
+      <p>Loading incident...</p>
+    </div>
+  } @else if (!incident) {
+    <mat-card class="not-found">
+      <mat-card-content>
+        <mat-icon>error_outline</mat-icon>
+        <h3>Incident not found</h3>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="detail-grid">
+      <!-- Main Content -->
+      <div class="detail-main">
+
+        <!-- Header -->
+        <mat-card class="header-card">
+          <mat-card-content>
+            <div class="incident-title-row">
+              <div class="badges">
+                <span class="severity-badge {{ getSeverityClass(incident.severity_final || incident.severity_hint) }}">
+                  {{ incident.severity_final || incident.severity_hint || 'TBD' }}
+                </span>
+                <span class="status-badge {{ getStatusClass(incident.status) }}">
+                  @if (isInProgress()) {
+                    <span class="pulse-dot"></span>
+                  }
+                  {{ incident.status.replace('_', ' ') | titlecase }}
+                </span>
+                @if (incident.assigned_team) {
+                  <span class="team-badge">{{ incident.assigned_team | titlecase }}</span>
+                }
+              </div>
+              <h1 class="incident-title">{{ incident.title }}</h1>
+              <div class="incident-meta">
+                <span>
+                  <mat-icon class="meta-icon">person</mat-icon>
+                  {{ incident.reporter_name }} ({{ incident.reporter_email }})
+                </span>
+                <span>
+                  <mat-icon class="meta-icon">schedule</mat-icon>
+                  {{ formatDate(incident.created_at) }}
+                </span>
+                @if (incident.linear_ticket_url) {
+                  <a [href]="incident.linear_ticket_url" target="_blank" class="ticket-link">
+                    <mat-icon class="meta-icon">confirmation_number</mat-icon>
+                    {{ incident.linear_ticket_id }}
+                    <mat-icon class="ext-icon">open_in_new</mat-icon>
+                  </a>
+                }
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Pipeline Progress -->
+        <mat-card class="pipeline-card">
+          <mat-card-header>
+            <mat-card-title>Pipeline Progress</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="pipeline-track">
+              @for (step of pipelineSteps; track step.label; let i = $index) {
+                <div class="pipeline-node" [class.done]="getPipelineStep() > i" [class.active]="getPipelineStep() === i + 1" [class.failed]="incident.status === 'failed' && getPipelineStep() === 0">
+                  <div class="node-circle">
+                    @if (getPipelineStep() > i) {
+                      <mat-icon>check</mat-icon>
+                    } @else if (isInProgress() && getPipelineStep() === i + 1) {
+                      <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                      <mat-icon>{{ step.icon }}</mat-icon>
+                    }
+                  </div>
+                  <span class="node-label">{{ step.label }}</span>
+                </div>
+                @if (i < pipelineSteps.length - 1) {
+                  <div class="pipeline-connector" [class.done]="getPipelineStep() > i + 1"></div>
+                }
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Demo Resolve Action -->
+        @if (canResolve()) {
+          <mat-card class="section-card demo-resolve-card">
+            <mat-card-content>
+              <div class="demo-resolve-row">
+                <div class="demo-resolve-info">
+                  <mat-icon class="demo-icon">science</mat-icon>
+                  <div>
+                    <strong>Demo: Simulate Resolution</strong>
+                    <p>Marks this incident as resolved and triggers the reporter notification flow.</p>
+                  </div>
+                </div>
+                <button mat-flat-button color="primary" (click)="resolveIncident()" [disabled]="resolving">
+                  @if (resolving) {
+                    <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner>
+                  } @else {
+                    <mat-icon>check_circle</mat-icon>
+                  }
+                  {{ resolving ? 'Resolving...' : 'Mark as Resolved' }}
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <!-- Email Notifications -->
+        @if (notificationPreviews.length > 0) {
+          <mat-card class="section-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon class="card-icon">mark_email_read</mat-icon>
+                Email Notifications
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @for (notif of notificationPreviews; track notif.id) {
+                @if (notif.metadata?.['type'] !== 'team_notification') {
+                  <div class="notif-banner" [style.border-left-color]="getNotificationColor(notif.metadata?.['type'])">
+                    <mat-icon [style.color]="getNotificationColor(notif.metadata?.['type'])">
+                      {{ getNotificationIcon(notif.metadata?.['type']) }}
+                    </mat-icon>
+                    <div class="notif-content">
+                      <div class="notif-title">
+                        Email sent to <strong>{{ notif.metadata?.['to'] }}</strong>
+                        <span class="notif-time">· {{ formatDate(notif.created_at) }}</span>
+                      </div>
+                      <div class="notif-subject">{{ notif.metadata?.['subject'] }}</div>
+                      <pre class="notif-body">{{ notif.metadata?.['body'] }}</pre>
+                    </div>
+                  </div>
+                }
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <!-- Description -->
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>Incident Description</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="description-text">{{ incident.description }}</p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Triage Results -->
+        @if (incident.triage_summary) {
+          <mat-card class="section-card triage-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon class="card-icon">psychology</mat-icon>
+                AI Triage Analysis
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="triage-summary">{{ incident.triage_summary }}</div>
+
+              @if (incident.root_cause_hint) {
+                <div class="triage-section">
+                  <h4>Root Cause Hypothesis</h4>
+                  <p>{{ incident.root_cause_hint }}</p>
+                </div>
+              }
+
+              @if (incident.affected_components && incident.affected_components.length > 0) {
+                <div class="triage-section">
+                  <h4>Affected Components</h4>
+                  <div class="chips-row">
+                    @for (comp of incident.affected_components; track comp) {
+                      <span class="component-chip">{{ comp }}</span>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (incident.recommended_actions && incident.recommended_actions.length > 0) {
+                <div class="triage-section">
+                  <h4>Recommended Actions</h4>
+                  <ul class="actions-list">
+                    @for (action of incident.recommended_actions; track action) {
+                      <li>{{ action }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+
+      </div>
+
+      <!-- Sidebar: Audit Log -->
+      <div class="detail-sidebar">
+        <mat-card class="audit-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>history</mat-icon>
+              Audit Trail
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (auditLogs.length === 0) {
+              <p class="no-logs">No audit entries yet</p>
+            } @else {
+              <div class="audit-timeline">
+                @for (log of auditLogs; track log.id) {
+                  <div class="audit-entry" [class.success]="log.success" [class.failure]="!log.success">
+                    <div class="audit-icon">
+                      <mat-icon>{{ log.success ? 'check_circle' : 'error' }}</mat-icon>
+                    </div>
+                    <div class="audit-content">
+                      <div class="audit-stage">{{ log.stage | titlecase }}</div>
+                      <div class="audit-message">{{ log.message }}</div>
+                      <div class="audit-time">{{ formatDate(log.created_at) }}</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  }
+</div>

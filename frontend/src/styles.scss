@@ -1,0 +1,234 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+:root {
+  --bg:           #080c14;
+  --bg-surface:   #0e1520;
+  --bg-card:      #111a2c;
+  --bg-elevated:  #172135;
+  --bg-hover:     #1c2a40;
+  --border:       #1e2d44;
+  --border-light: #16243a;
+
+  --text:         #e2e8f0;
+  --text-sec:     #94a3b8;
+  --text-muted:   #5a6a82;
+
+  --accent:       #7c6af7;
+  --accent-dim:   rgba(124, 106, 247, 0.15);
+  --accent-glow:  0 0 24px rgba(124, 106, 247, 0.35);
+
+  --green:        #34d399;
+  --green-dim:    rgba(52, 211, 153, 0.12);
+  --red:          #f87171;
+  --red-dim:      rgba(248, 113, 113, 0.12);
+  --orange:       #fb923c;
+  --orange-dim:   rgba(251, 146, 60, 0.12);
+  --yellow:       #fbbf24;
+  --blue:         #60a5fa;
+  --blue-dim:     rgba(96, 165, 250, 0.12);
+
+  --radius:       10px;
+  --radius-sm:    6px;
+  --radius-lg:    16px;
+  --transition:   0.18s ease;
+}
+
+// ─── Base Reset ───────────────────────────────────────────────────────────────
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background-color: var(--bg) !important;
+  color: var(--text);
+}
+
+// ─── Material Dark Overrides ──────────────────────────────────────────────────
+
+// Cards
+.mat-mdc-card {
+  background-color: var(--bg-card) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4) !important;
+}
+.mat-mdc-card-title { color: var(--text) !important; }
+.mat-mdc-card-subtitle { color: var(--text-sec) !important; }
+.mdc-card { background: var(--bg-card) !important; }
+
+// Toolbar
+.mat-toolbar {
+  background: var(--bg-surface) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+// Form fields
+.mat-mdc-form-field {
+  .mdc-text-field { background-color: var(--bg-elevated) !important; }
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--border) !important;
+  }
+  &.mat-focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--accent) !important;
+    }
+  }
+  .mat-mdc-input-element, .mat-mdc-select-value-text { color: var(--text) !important; }
+  .mat-mdc-floating-label { color: var(--text-sec) !important; }
+  .mat-mdc-form-field-hint { color: var(--text-muted) !important; }
+}
+
+// Table
+.mat-mdc-table {
+  background: var(--bg-card) !important;
+  color: var(--text) !important;
+}
+.mat-mdc-header-row {
+  background: var(--bg-elevated) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.mat-mdc-header-cell {
+  color: var(--text-muted) !important;
+  border-bottom: none !important;
+}
+.mat-mdc-row { border-bottom-color: var(--border-light) !important; }
+.mat-mdc-row:hover { background: var(--bg-hover) !important; }
+.mat-mdc-cell { color: var(--text) !important; border-bottom-color: var(--border-light) !important; }
+
+// Select dropdown
+.mat-mdc-select-value, .mat-mdc-select-arrow { color: var(--text) !important; }
+.mat-mdc-select-panel {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border) !important;
+}
+.mat-mdc-option { color: var(--text) !important; }
+.mat-mdc-option:hover, .mat-mdc-option.mat-mdc-option-active {
+  background: var(--bg-hover) !important;
+}
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  background: var(--accent-dim) !important;
+}
+
+// Buttons
+.mat-mdc-raised-button.mat-primary {
+  background: var(--accent) !important;
+  color: white !important;
+}
+.mat-mdc-button { color: var(--text-sec) !important; }
+.mat-mdc-button:hover { color: var(--text) !important; }
+.mat-mdc-icon-button .mat-icon { color: var(--text-sec) !important; }
+
+// Spinners
+.mat-mdc-progress-spinner circle,
+.mdc-circular-progress__indeterminate-circle-graphic { stroke: var(--accent) !important; }
+
+// Progress bar
+.mat-mdc-progress-bar .mdc-linear-progress__bar-inner { border-color: var(--accent) !important; }
+.mat-mdc-progress-bar .mdc-linear-progress__buffer-bar { background: var(--bg-elevated) !important; }
+
+// Tooltip
+.mdc-tooltip__surface { background: var(--bg-elevated) !important; color: var(--text) !important; }
+
+// Scrollbar
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+// ─── Severity Badges ──────────────────────────────────────────────────────────
+.severity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-family: 'Roboto Mono', monospace;
+
+  &.p0 {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+  }
+  &.p1 {
+    background: rgba(251, 146, 60, 0.18);
+    color: #fdba74;
+    border: 1px solid rgba(251, 146, 60, 0.35);
+  }
+  &.p2 {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fcd34d;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+  &.p3 {
+    background: rgba(52, 211, 153, 0.12);
+    color: #6ee7b7;
+    border: 1px solid rgba(52, 211, 153, 0.25);
+  }
+  &.p4 {
+    background: rgba(96, 165, 250, 0.12);
+    color: #93c5fd;
+    border: 1px solid rgba(96, 165, 250, 0.25);
+  }
+  &.unknown {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-sec);
+    border: 1px solid var(--border);
+  }
+}
+
+// ─── Status Badges ────────────────────────────────────────────────────────────
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+
+  &.received  { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(96,165,250,0.3); }
+  &.triaging  { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(251,146,60,0.3); }
+  &.triaged   { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(52,211,153,0.3); }
+  &.ticket_created { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(124,106,247,0.3); }
+  &.notified  { background: var(--accent-dim); color: #a5b4fc; border: 1px solid rgba(165,180,252,0.3); }
+  &.resolved  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(52,211,153,0.4); }
+  &.failed    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(248,113,113,0.3); }
+}
+
+// ─── Team Badge ───────────────────────────────────────────────────────────────
+.team-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--text-sec);
+  border: 1px solid var(--border);
+}
+
+// ─── Input Placeholders ───────────────────────────────────────────────────────
+::placeholder { color: var(--text-muted) !important; opacity: 1; }
+::-webkit-input-placeholder { color: var(--text-muted) !important; }
+::-moz-placeholder { color: var(--text-muted) !important; }
+textarea::placeholder { color: var(--text-muted) !important; opacity: 1; }
+
+// ─── Global Layout ────────────────────────────────────────────────────────────
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+
+.mat-typography { font-family: 'Inter', sans-serif; }

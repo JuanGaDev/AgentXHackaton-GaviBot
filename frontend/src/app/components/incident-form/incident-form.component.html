@@ -1,0 +1,207 @@
+<div class="page-container">
+  <div class="form-header">
+    <div class="header-icon-wrap">
+      <mat-icon class="header-icon">add_alert</mat-icon>
+    </div>
+    <div>
+      <h1>Report an Incident</h1>
+      <p>Describe the issue and GaviBot will automatically triage, assign a team, create a ticket, and notify everyone.</p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-grid">
+      <!-- Left column: Main fields -->
+      <div class="form-main">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>Incident Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Incident Title</mat-label>
+              <input matInput formControlName="title" placeholder="e.g. Checkout fails with 500 error on payment step" />
+              <mat-icon matSuffix>title</mat-icon>
+              @if (form.get('title')?.hasError('required') && form.get('title')?.touched) {
+                <mat-error>Title is required</mat-error>
+              }
+              @if (form.get('title')?.hasError('minlength') && form.get('title')?.touched) {
+                <mat-error>Title must be at least 5 characters</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                formControlName="description"
+                rows="8"
+                placeholder="Describe the incident in detail. Include:&#10;- What happened?&#10;- When did it start?&#10;- How many users are affected?&#10;- Steps to reproduce&#10;- Any error messages you see"
+              ></textarea>
+              <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/10000</mat-hint>
+              @if (form.get('description')?.hasError('required') && form.get('description')?.touched) {
+                <mat-error>Description is required</mat-error>
+              }
+              @if (form.get('description')?.hasError('minlength') && form.get('description')?.touched) {
+                <mat-error>Description must be at least 20 characters</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Severity (optional - agent will determine automatically)</mat-label>
+              <mat-select formControlName="severity_hint">
+                <mat-option [value]="null">Let the agent decide</mat-option>
+                @for (option of severityOptions; track option.value) {
+                  <mat-option [value]="option.value">
+                    <div class="severity-option">
+                      <span class="severity-dot" [style.background]="option.color"></span>
+                      <span class="severity-label">{{ option.label }}</span>
+                      <span class="severity-desc">{{ option.description }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>priority_high</mat-icon>
+            </mat-form-field>
+
+          </mat-card-content>
+        </mat-card>
+
+        <!-- File Upload -->
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>Attachments</mat-card-title>
+            <mat-card-subtitle>Screenshots, error logs, or log files (max 5 files, 10MB each)</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+
+            <div
+              class="drop-zone"
+              [class.drag-over]="dragOver"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+              (click)="fileInput.click()"
+            >
+              <mat-icon class="drop-icon">cloud_upload</mat-icon>
+              <p class="drop-text">Drag & drop files here or click to browse</p>
+              <p class="drop-hint">PNG, JPG, GIF, WEBP, TXT, LOG, JSON</p>
+              <input #fileInput type="file" multiple hidden (change)="onFileSelected($event)"
+                accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.log,.json,.csv" />
+            </div>
+
+            @if (uploadedFiles.length > 0) {
+              <div class="file-list">
+                @for (file of uploadedFiles; track file.name; let i = $index) {
+                  <div class="file-item">
+                    <mat-icon class="file-icon">{{ getFileIcon(file) }}</mat-icon>
+                    <div class="file-info">
+                      <span class="file-name">{{ file.name }}</span>
+                      <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                    </div>
+                    <button mat-icon-button type="button" (click)="removeFile(i)" color="warn">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Right column: Reporter info -->
+      <div class="form-sidebar">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>Reporter Information</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Your Name</mat-label>
+              <input matInput formControlName="reporter_name" placeholder="Jane Smith" />
+              <mat-icon matSuffix>person</mat-icon>
+              @if (form.get('reporter_name')?.hasError('required') && form.get('reporter_name')?.touched) {
+                <mat-error>Name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Your Email</mat-label>
+              <input matInput type="email" formControlName="reporter_email" placeholder="jane@example.com" />
+              <mat-icon matSuffix>email</mat-icon>
+              @if (form.get('reporter_email')?.hasError('required') && form.get('reporter_email')?.touched) {
+                <mat-error>Email is required</mat-error>
+              }
+              @if (form.get('reporter_email')?.hasError('email') && form.get('reporter_email')?.touched) {
+                <mat-error>Valid email required</mat-error>
+              }
+            </mat-form-field>
+
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="info-card">
+          <mat-card-content>
+            <h3>What happens next?</h3>
+            <div class="pipeline-steps">
+              <div class="step">
+                <mat-icon class="step-icon">security</mat-icon>
+                <div>
+                  <strong>1. Intake & Validation</strong>
+                  <p>Input is sanitized and validated</p>
+                </div>
+              </div>
+              <div class="step">
+                <mat-icon class="step-icon">psychology</mat-icon>
+                <div>
+                  <strong>2. AI Triage</strong>
+                  <p>Gemini analyzes your report + codebase</p>
+                </div>
+              </div>
+              <div class="step">
+                <mat-icon class="step-icon">route</mat-icon>
+                <div>
+                  <strong>3. Team Routing</strong>
+                  <p>Assigned to the right engineering team</p>
+                </div>
+              </div>
+              <div class="step">
+                <mat-icon class="step-icon">confirmation_number</mat-icon>
+                <div>
+                  <strong>4. Ticket Created</strong>
+                  <p>Linear issue created automatically</p>
+                </div>
+              </div>
+              <div class="step">
+                <mat-icon class="step-icon">notifications_active</mat-icon>
+                <div>
+                  <strong>5. Team Notified</strong>
+                  <p>Slack alert sent to the right channel</p>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="submitting"
+          class="submit-btn"
+        >
+          <mat-icon>{{ submitting ? 'hourglass_empty' : 'send' }}</mat-icon>
+          {{ submitting ? 'Submitting...' : 'Submit Incident Report' }}
+        </button>
+
+        @if (submitting) {
+          <mat-progress-bar mode="indeterminate" class="progress-bar"></mat-progress-bar>
+        }
+      </div>
+    </div>
+  </form>
+</div>
